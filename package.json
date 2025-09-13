@@ -1,0 +1,38 @@
+{
+  "name": "pure-bodybuilding-tracker",
+  "version": "1.0.0",
+  "description": "Interactive workout tracker for Jeff Nippard's Pure Bodybuilding Upper/Lower program",
+  "main": "workout-tracker.html",
+  "scripts": {
+    "start": "open workout-tracker.html",
+    "serve": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "workout",
+    "fitness",
+    "bodybuilding",
+    "tracker",
+    "gym",
+    "exercise",
+    "jeff-nippard",
+    "upper-lower",
+    "training"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/pure-bodybuilding-tracker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/pure-bodybuilding-tracker/issues"
+  },
+  "homepage": "https://github.com/yourusername/pure-bodybuilding-tracker#readme",
+  "devDependencies": {},
+  "dependencies": {},
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
