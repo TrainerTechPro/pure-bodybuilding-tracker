@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pure Bodybuilding Workout Tracker - Enhanced</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -2px;
+        }
+        
+        .tab:hover {
+            background: #e9ecef;
+        }
+        
+        .content {
+            padding: 20px;
+            min-height: 500px;
+        }
+        
+        .week-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .week-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .week-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .day-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .day-card {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .day-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .day-card.completed {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .exercise-list {
+            space-y: 15px;
+        }
+        
+        .exercise-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .exercise-card.completed {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .exercise-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #212529;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        
+        .video-link {
+            padding: 8px 15px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+        
+        .video-link:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .exercise-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .sets-tracker {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .set-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 1fr 100px;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .set-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .set-complete-btn {
+            padding: 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .set-complete-btn:hover {
+            background: #218838;
+        }
+        
+        .set-complete-btn.completed {
+            background: #6c757d;
+        }
+        
+        .timer-section {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            min-width: 200px;
+        }
+        
+        .timer-display {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .timer-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .timer-btn.start {
+            background: #28a745;
+            color: white;
+        }
+        
+        .timer-btn.stop {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .timer-btn.reset {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .quick-timer {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .quick-timer-btn {
+            flex: 1;
+            padding: 8px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .quick-timer-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            height: 400px;
+            position: relative;
+        }
+        
+        .pr-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #ffd700;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pr-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 2000;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .analytics-container {
+            display: grid;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .chart-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .chart-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .chart-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .progress-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .progress-exercise {
+            font-weight: 600;
+            color: #212529;
+        }
+        
+        .progress-stats {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .progress-change {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .progress-change.positive {
+            color: #28a745;
+        }
+        
+        .progress-change.negative {
+            color: #dc3545;
+        }
+        
+        .volume-chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .exercise-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .history-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .notes-section {
+            margin-top: 20px;
+        }
+        
+        .notes-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .save-notes-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .tabs {
+                overflow-x: scroll;
+            }
+            
+            .day-card {
+                min-width: 100px;
+            }
+            
+            .set-row {
+                grid-template-columns: 50px 1fr 1fr 80px;
+            }
+            
+            .timer-section {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+            }
+        }
+        
+        .warm-up-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .warm-up-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .warm-up-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .export-btn {
+            padding: 10px 20px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .import-btn {
+            padding: 10px 20px;
+            background: #ffc107;
+            color: #212529;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .pr-list {
+            margin-top: 20px;
+        }
+        
+        .pr-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        
+        // Workout data embedded directly
+        const workoutData = {
+            "weeks": [
+                {
+                    "week": "Week 1",
+                    "days": [
+                        {
+                            "name": "Upper #1",
+                            "exercises": [
+                                {"name": "Cuffed Behind-The-Back Lateral Raise", "technique": "Myo-reps", "warmup_sets": "2", "working_sets": "3", "reps": "10-12"},
+                                {"name": "Cross-Body Lat Pull-Around", "technique": "Long-length Partials", "warmup_sets": "1", "working_sets": "3", "reps": "10-12"},
+                                {"name": "Low Incline Smith Machine Press", "technique": "Pec Static Stretch", "warmup_sets": "2-3", "working_sets": "4", "reps": "8-10"},
+                                {"name": "Chest-Supported Machine Row", "technique": "Long-length Partials", "warmup_sets": "1-2", "working_sets": "3", "reps": "8-10"},
+                                {"name": "Overhead Cable Triceps Extension", "technique": "Dropset", "warmup_sets": "1", "working_sets": "2", "reps": "8-10"},
+                                {"name": "Straight-Bar Lat Prayer", "technique": "Long-length Partials", "warmup_sets": "1", "working_sets": "3", "reps": "12-15"},
+                                {"name": "Pec Deck (w/ Integrated Partials)", "technique": "Integrated Partials", "warmup_sets": "1", "working_sets": "3", "reps": "12-15"}
+                            ]
+                        },
+                        {
+                            "name": "Lower #1",
+                            "exercises": [
+                                {"name": "Seated Leg Curl", "technique": "N/A", "warmup_sets": "1-2", "working_sets": "3", "reps": "8-10"},
+                                {"name": "Machine Hip Adduction", "technique": "N/A", "warmup_sets": "1", "working_sets": "3", "reps": "10-12"},
+                                {"name": "Hack Squat", "technique": "N/A", "warmup_sets": "2-4", "working_sets": "3", "reps": "4, 6, 8"},
+                                {"name": "Leg Extension", "technique": "Long-length Partials", "warmup_sets": "1-2", "working_sets": "3", "reps": "10-12"},
+                                {"name": "Leg Press Calf Press", "technique": "Calf Static Stretch", "warmup_sets": "1", "working_sets": "3", "reps": "12-15"}
+                            ]
+                        },
+                        {
+                            "name": "Upper #2",
+                            "exercises": [
+                                {"name": "Super-ROM Overhand Cable Row", "technique": "N/A", "warmup_sets": "1-2", "working_sets": "3", "reps": "10-12"},
+                                {"name": "Machine Shoulder Press", "technique": "Dropset", "warmup_sets": "2-3", "working_sets": "3", "reps": "10-12"},
+                                {"name": "Assisted Pull-Up", "technique": "Long-length Partials", "warmup_sets": "1-2", "working_sets": "3", "reps": "8-10"},
+                                {"name": "Paused Assisted Dip", "technique": "N/A", "warmup_sets": "2", "working_sets": "3", "reps": "8-10"},
+                                {"name": "Inverse DB Zottman Curl", "technique": "N/A", "warmup_sets": "1", "working_sets": "2", "reps": "10-12"},
+                                {"name": "Super-ROM DB Lateral Raise", "technique": "N/A", "warmup_sets": "1", "working_sets": "3", "reps": "12-15"},
+                                {"name": "Cable Reverse Flye (Mechanical Dropset)", "technique": "Mechanical Dropset", "warmup_sets": "0", "working_sets": "3", "reps": "5,4,3+"}
+                            ]
+                        },
+                        {
+                            "name": "Lower #2",
+                            "exercises": [
+                                {"name": "Lying Leg Curl", "technique": "Long-length Partials", "warmup_sets": "1-2", "working_sets": "3", "reps": "8-10"},
+                                {"name": "Leg Press", "technique": "N/A", "warmup_sets": "2-4", "working_sets": "3", "reps": "8"},
+                                {"name": "Paused Barbell RDL", "technique": "N/A", "warmup_sets": "2-3", "working_sets": "2", "reps": "8"},
+                                {"name": "A1: Machine Hip Adduction", "technique": "N/A", "warmup_sets": "1", "working_sets": "3", "reps": "10-12"},
+                                {"name": "A2: Sissy Squat", "technique": "N/A", "warmup_sets": "1", "working_sets": "3", "reps": "10-12"},
+                                {"name": "Standing Calf Raise", "technique": "Calf Static Stretch", "warmup_sets": "1", "working_sets": "3", "reps": "10-12"}
+                            ]
+                        },
+                        {
+                            "name": "Arms & Weak Points",
+                            "exercises": [
+                                {"name": "Weak Point Exercise 1", "technique": "N/A", "warmup_sets": "1-3", "working_sets": "3", "reps": "8-12"},
+                                {"name": "Weak Point Exercise 2 (optional)", "technique": "N/A", "warmup_sets": "1-3", "working_sets": "2", "reps": "8-12"},
+                                {"name": "Bayesian Cable Curl", "technique": "Long-length Partials", "warmup_sets": "1", "working_sets": "3", "reps": "10-12"},
+                                {"name": "Seated DB French Press", "technique": "N/A", "warmup_sets": "1", "working_sets": "3", "reps": "10"},
+                                {"name": "Bottom-2/3 Constant Tension Preacher Curl", "technique": "N/A", "warmup_sets": "1", "working_sets": "2", "reps": "12-15"},
+                                {"name": "Cable Triceps Kickback", "technique": "N/A", "warmup_sets": "0", "working_sets": "2", "reps": "12-15"},
+                                {"name": "Cable Crunch", "technique": "N/A", "warmup_sets": "1", "working_sets": "3", "reps": "10-12"}
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "exercises": {
+                "Arm Swings": "https://youtu.be/tFpwBr_7KPg?si=mC4_uHgulB38cPTK",
+                "Arm Circles": "https://youtu.be/tFpwBr_7KPg?si=2XC3Xw4zdmYLN-av&t=10",
+                "Front-to-Back Leg Swings": "https://youtu.be/tFpwBr_7KPg?si=9Uxm-CNsEA7khMmd&t=19",
+                "Side-to-Side Leg Swings": "https://youtu.be/tFpwBr_7KPg?si=0T63q37dQLKi118I&t=28",
+                "Cable External Rotation (optional)": "https://youtu.be/tFpwBr_7KPg?si=Rw3RDb-N8V4Dm5yI&t=39",
+                "Cuffed Behind-The-Back Lateral Raise": "https://youtu.be/fjiOCmFljDM?si=Q0xttHm6E4SfmD-E",
+                "Machine Shoulder Press": "https://youtu.be/SCQVmN1gYsk?si=260eJ_EGUnc7kzgh",
+                "Low Incline Smith Machine Press": "https://youtu.be/H3q4W2tbjA0",
+                "Chest-Supported Machine Row": "https://youtu.be/8LVuGp0LVuo",
+                "Overhead Cable Triceps Extension": "https://youtu.be/2-LAMcpzODU",
+                "Straight-Bar Lat Prayer": "https://youtu.be/YrcnBlH8XDA",
+                "Pec Deck (w/ Integrated Partials)": "https://youtu.be/O1cSgRhf_NQ",
+                "Cross-Body Lat Pull-Around": "https://youtu.be/w11Kqjm-ycE",
+                "Seated Leg Curl": "https://youtu.be/ELOCsoDSmrg",
+                "Machine Hip Adduction": "https://youtu.be/pRNx7m_iTUk",
+                "Hack Squat": "https://youtu.be/0tn0WYDpHqg",
+                "Leg Extension": "https://youtu.be/YyvSfVjQeL0",
+                "Leg Press Calf Press": "https://youtu.be/Mtjlp4oLoVo",
+                "Super-ROM Overhand Cable Row": "https://youtu.be/GZN6P9LHHwM",
+                "Assisted Pull-Up": "https://youtu.be/wFAF7mEXbbE",
+                "Paused Assisted Dip": "https://youtu.be/pPHCRcFHPgk",
+                "Inverse DB Zottman Curl": "https://youtu.be/FIGN59JdchI",
+                "Super-ROM DB Lateral Raise": "https://youtu.be/RyztKrzaMNk",
+                "Cable Reverse Flye (Mechanical Dropset)": "https://youtu.be/JENKmsNDUO8",
+                "Lying Leg Curl": "https://youtu.be/1Tq0vE5_uT4",
+                "Leg Press": "https://youtu.be/IZxyjW7MPJQ",
+                "Paused Barbell RDL": "https://youtu.be/JCXUYuzwNrM",
+                "A1: Machine Hip Adduction": "https://youtu.be/pRNx7m_iTUk",
+                "A2: Sissy Squat": "https://youtu.be/eD8An5MXGQ4",
+                "Standing Calf Raise": "https://youtu.be/-M4-G8s0Q8U",
+                "Bayesian Cable Curl": "https://youtu.be/sJnL8MzapCE",
+                "Seated DB French Press": "https://youtu.be/ir6Jep-SgNQ",
+                "Bottom-2/3 Constant Tension Preacher Curl": "https://youtu.be/sJVBXpL9xZs",
+                "Cable Triceps Kickback": "https://youtu.be/6Fzep104f0s",
+                "Cable Crunch": "https://youtu.be/2fbujeH3F0U"
+            }
+        };
+
+        // Duplicate weeks 2-10 with same structure (for demo purposes)
+        for (let i = 2; i <= 10; i++) {
+            const weekCopy = JSON.parse(JSON.stringify(workoutData.weeks[0]));
+            weekCopy.week = `Week ${i}`;
+            workoutData.weeks.push(weekCopy);
+        }
+
+        const warmUpExercises = [
+            { name: "Arm Swings", reps: "10 reps per side", link: "https://youtu.be/tFpwBr_7KPg?si=mC4_uHgulB38cPTK" },
+            { name: "Arm Circles", reps: "10 reps per side", link: "https://youtu.be/tFpwBr_7KPg?si=2XC3Xw4zdmYLN-av&t=10" },
+            { name: "Front-to-Back Leg Swings", reps: "10 reps per side", link: "https://youtu.be/tFpwBr_7KPg?si=9Uxm-CNsEA7khMmd&t=19" },
+            { name: "Side-to-Side Leg Swings", reps: "10 reps per side", link: "https://youtu.be/tFpwBr_7KPg?si=0T63q37dQLKi118I&t=28" },
+            { name: "Cable External Rotation (optional)", reps: "15 reps per side", link: "https://youtu.be/tFpwBr_7KPg?si=Rw3RDb-N8V4Dm5yI&t=39" }
+        ];
+
+        function WorkoutTracker() {
+            const [activeTab, setActiveTab] = useState('workout');
+            const [selectedWeek, setSelectedWeek] = useState(0);
+            const [selectedDay, setSelectedDay] = useState(0);
+            const [workoutLog, setWorkoutLog] = useState({});
+            const [timerSeconds, setTimerSeconds] = useState(0);
+            const [isTimerRunning, setIsTimerRunning] = useState(false);
+            const [notes, setNotes] = useState('');
+            const [personalRecords, setPersonalRecords] = useState({});
+            const [showPRNotification, setShowPRNotification] = useState(false);
+            const [prExercise, setPRExercise] = useState('');
+            const [selectedExercise, setSelectedExercise] = useState('');
+            const [chartType, setChartType] = useState('strength');
+            const timerInterval = useRef(null);
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+            const volumeChartRef = useRef(null);
+            const volumeChartInstance = useRef(null);
+
+            // Load saved data on mount
+            useEffect(() => {
+                const savedLog = localStorage.getItem('workoutLog');
+                const savedNotes = localStorage.getItem('workoutNotes');
+                const savedPRs = localStorage.getItem('personalRecords');
+                if (savedLog) {
+                    setWorkoutLog(JSON.parse(savedLog));
+                }
+                if (savedNotes) {
+                    setNotes(savedNotes);
+                }
+                if (savedPRs) {
+                    setPersonalRecords(JSON.parse(savedPRs));
+                }
+            }, []);
+
+            // Save workout log whenever it changes
+            useEffect(() => {
+                localStorage.setItem('workoutLog', JSON.stringify(workoutLog));
+            }, [workoutLog]);
+            
+            // Save personal records whenever they change
+            useEffect(() => {
+                localStorage.setItem('personalRecords', JSON.stringify(personalRecords));
+            }, [personalRecords]);
+            
+            // Hide PR notification after 5 seconds
+            useEffect(() => {
+                if (showPRNotification) {
+                    const timer = setTimeout(() => {
+                        setShowPRNotification(false);
+                    }, 5000);
+                    return () => clearTimeout(timer);
+                }
+            }, [showPRNotification]);
+
+            // Timer effect
+            useEffect(() => {
+                if (isTimerRunning) {
+                    timerInterval.current = setInterval(() => {
+                        setTimerSeconds(prev => prev + 1);
+                    }, 1000);
+                } else {
+                    if (timerInterval.current) {
+                        clearInterval(timerInterval.current);
+                    }
+                }
+                return () => {
+                    if (timerInterval.current) {
+                        clearInterval(timerInterval.current);
+                    }
+                };
+            }, [isTimerRunning]);
+
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const startTimer = (seconds = 0) => {
+                setTimerSeconds(seconds);
+                setIsTimerRunning(true);
+            };
+
+            const stopTimer = () => {
+                setIsTimerRunning(false);
+            };
+
+            const resetTimer = () => {
+                setTimerSeconds(0);
+                setIsTimerRunning(false);
+            };
+
+            const checkAndUpdatePR = (exerciseName, weight, reps) => {
+                const currentPR = personalRecords[exerciseName];
+                const totalVolume = parseFloat(weight) * parseInt(reps);
+                
+                if (!currentPR || parseFloat(weight) > parseFloat(currentPR.weight) || 
+                    (parseFloat(weight) === parseFloat(currentPR.weight) && parseInt(reps) > parseInt(currentPR.reps))) {
+                    const newPRs = {
+                        ...personalRecords,
+                        [exerciseName]: {
+                            weight,
+                            reps,
+                            volume: totalVolume,
+                            date: new Date().toISOString()
+                        }
+                    };
+                    setPersonalRecords(newPRs);
+                    setPRExercise(exerciseName);
+                    setShowPRNotification(true);
+                    return true;
+                }
+                return false;
+            };
+            
+            const logSet = (weekIdx, dayIdx, exerciseIdx, setIdx, weight, reps) => {
+                const key = `${weekIdx}-${dayIdx}-${exerciseIdx}-${setIdx}`;
+                const exercise = workoutData.weeks[weekIdx]?.days[dayIdx]?.exercises[exerciseIdx];
+                
+                if (weight && reps && exercise) {
+                    checkAndUpdatePR(exercise.name, weight, reps);
+                }
+                
+                const newLog = {
+                    ...workoutLog,
+                    [key]: {
+                        weight,
+                        reps,
+                        date: new Date().toISOString(),
+                        completed: true,
+                        exerciseName: exercise?.name
+                    }
+                };
+                setWorkoutLog(newLog);
+            };
+
+            const getSetData = (weekIdx, dayIdx, exerciseIdx, setIdx) => {
+                const key = `${weekIdx}-${dayIdx}-${exerciseIdx}-${setIdx}`;
+                return workoutLog[key] || { weight: '', reps: '', completed: false };
+            };
+
+            const isExerciseCompleted = (weekIdx, dayIdx, exerciseIdx, totalSets) => {
+                for (let i = 0; i < totalSets; i++) {
+                    const key = `${weekIdx}-${dayIdx}-${exerciseIdx}-${i}`;
+                    if (!workoutLog[key]?.completed) {
+                        return false;
+                    }
+                }
+                return totalSets > 0;
+            };
+
+            const isDayCompleted = (weekIdx, dayIdx) => {
+                const day = workoutData.weeks[weekIdx]?.days[dayIdx];
+                if (!day) return false;
+                
+                for (let i = 0; i < day.exercises.length; i++) {
+                    const sets = parseInt(day.exercises[i].working_sets) || 3;
+                    if (!isExerciseCompleted(weekIdx, dayIdx, i, sets)) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+
+            const getCompletedWorkouts = () => {
+                let count = 0;
+                for (let w = 0; w < workoutData.weeks.length; w++) {
+                    for (let d = 0; d < workoutData.weeks[w].days.length; d++) {
+                        if (isDayCompleted(w, d)) {
+                            count++;
+                        }
+                    }
+                }
+                return count;
+            };
+
+            const getTotalVolume = () => {
+                let total = 0;
+                Object.values(workoutLog).forEach(entry => {
+                    if (entry.completed && entry.weight && entry.reps) {
+                        total += parseFloat(entry.weight) * parseInt(entry.reps);
+                    }
+                });
+                return Math.round(total);
+            };
+
+            const getCurrentStreak = () => {
+                const dates = Object.values(workoutLog)
+                    .filter(entry => entry.completed)
+                    .map(entry => new Date(entry.date).toDateString())
+                    .filter((date, index, self) => self.indexOf(date) === index)
+                    .sort((a, b) => new Date(b) - new Date(a));
+                
+                if (dates.length === 0) return 0;
+                
+                let streak = 1;
+                const today = new Date();
+                let currentDate = new Date(dates[0]);
+                
+                if (currentDate.toDateString() !== today.toDateString()) {
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    if (currentDate.toDateString() !== yesterday.toDateString()) {
+                        return 0;
+                    }
+                }
+                
+                for (let i = 1; i < dates.length; i++) {
+                    const prevDate = new Date(dates[i - 1]);
+                    const nextDate = new Date(dates[i]);
+                    prevDate.setDate(prevDate.getDate() - 1);
+                    
+                    if (prevDate.toDateString() === nextDate.toDateString()) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                return streak;
+            };
+
+            const saveNotes = () => {
+                localStorage.setItem('workoutNotes', notes);
+                alert('Notes saved!');
+            };
+
+            const exportData = () => {
+                const dataStr = JSON.stringify({ workoutLog, notes, personalRecords }, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                const exportFileDefaultName = `workout-data-${new Date().toISOString().split('T')[0]}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            };
+
+            const importData = () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const data = JSON.parse(event.target.result);
+                            if (data.workoutLog) {
+                                setWorkoutLog(data.workoutLog);
+                            }
+                            if (data.notes) {
+                                setNotes(data.notes);
+                            }
+                            if (data.personalRecords) {
+                                setPersonalRecords(data.personalRecords);
+                            }
+                            alert('Data imported successfully!');
+                        } catch (error) {
+                            alert('Error importing data. Please check the file format.');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            };
+
+            const getExerciseProgress = (exerciseName) => {
+                const exerciseData = Object.entries(workoutLog)
+                    .filter(([_, data]) => data.completed && data.exerciseName === exerciseName)
+                    .map(([key, data]) => ({
+                        date: new Date(data.date),
+                        weight: parseFloat(data.weight),
+                        reps: parseInt(data.reps),
+                        volume: parseFloat(data.weight) * parseInt(data.reps)
+                    }))
+                    .sort((a, b) => a.date - b.date);
+                
+                return exerciseData;
+            };
+            
+            const getWeeklyVolume = () => {
+                const weeklyData = {};
+                
+                Object.values(workoutLog).forEach(entry => {
+                    if (entry.completed && entry.weight && entry.reps) {
+                        const date = new Date(entry.date);
+                        const weekStart = new Date(date);
+                        weekStart.setDate(date.getDate() - date.getDay());
+                        const weekKey = weekStart.toISOString().split('T')[0];
+                        
+                        if (!weeklyData[weekKey]) {
+                            weeklyData[weekKey] = 0;
+                        }
+                        
+                        weeklyData[weekKey] += parseFloat(entry.weight) * parseInt(entry.reps);
+                    }
+                });
+                
+                return Object.entries(weeklyData)
+                    .map(([week, volume]) => ({ week: new Date(week), volume }))
+                    .sort((a, b) => a.week - b.week);
+            };
+            
+            const getAllExercises = () => {
+                const exercises = new Set();
+                workoutData.weeks.forEach(week => {
+                    week.days.forEach(day => {
+                        day.exercises.forEach(exercise => {
+                            if (exercise.name !== 'Weak Point Exercise 1' && 
+                                exercise.name !== 'Weak Point Exercise 2 (optional)') {
+                                exercises.add(exercise.name);
+                            }
+                        });
+                    });
+                });
+                return Array.from(exercises).sort();
+            };
+            
+            const updateProgressChart = () => {
+                if (!chartRef.current || !selectedExercise) return;
+                
+                const ctx = chartRef.current.getContext('2d');
+                const progressData = getExerciseProgress(selectedExercise);
+                
+                if (chartInstance.current) {
+                    chartInstance.current.destroy();
+                }
+                
+                const datasets = chartType === 'strength' ? [{
+                    label: 'Weight (lbs)',
+                    data: progressData.map(d => ({ x: d.date, y: d.weight })),
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.1
+                }] : [{
+                    label: 'Volume (lbs × reps)',
+                    data: progressData.map(d => ({ x: d.date, y: d.volume })),
+                    borderColor: '#764ba2',
+                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                    tension: 0.1
+                }];
+                
+                chartInstance.current = new Chart(ctx, {
+                    type: 'line',
+                    data: { datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'day'
+                                }
+                            },
+                            y: {
+                                beginAtZero: false
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: (context) => {
+                                        const dataPoint = progressData[context.dataIndex];
+                                        return `Reps: ${dataPoint.reps}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+            
+            const updateVolumeChart = () => {
+                if (!volumeChartRef.current) return;
+                
+                const ctx = volumeChartRef.current.getContext('2d');
+                const weeklyData = getWeeklyVolume();
+                
+                if (volumeChartInstance.current) {
+                    volumeChartInstance.current.destroy();
+                }
+                
+                volumeChartInstance.current = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: weeklyData.map(d => d.week.toLocaleDateString()),
+                        datasets: [{
+                            label: 'Weekly Volume (lbs)',
+                            data: weeklyData.map(d => d.volume),
+                            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                            borderColor: '#667eea',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            }
+                        }
+                    }
+                });
+            };
+            
+            useEffect(() => {
+                if (activeTab === 'progress' && selectedExercise) {
+                    updateProgressChart();
+                }
+            }, [activeTab, selectedExercise, chartType, workoutLog]);
+            
+            useEffect(() => {
+                if (activeTab === 'progress') {
+                    updateVolumeChart();
+                }
+            }, [activeTab, workoutLog]);
+            
+            const currentWeek = workoutData.weeks[selectedWeek];
+            const currentDay = currentWeek?.days[selectedDay];
+
+            return (
+                <div className="container">
+                    {showPRNotification && (
+                        <div className="pr-notification">
+                            <h3>🏆 NEW PERSONAL RECORD!</h3>
+                            <p>{prExercise}</p>
+                            <p>{personalRecords[prExercise]?.weight} lbs × {personalRecords[prExercise]?.reps} reps</p>
+                        </div>
+                    )}
+                    
+                    <div className="header">
+                        <h1>🏋️ Pure Bodybuilding Tracker</h1>
+                        <p>Upper/Lower Split Program by Jeff Nippard</p>
+                    </div>
+                    
+                    <div className="tabs">
+                        <button 
+                            className={`tab ${activeTab === 'workout' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('workout')}
+                        >
+                            💪 Workout
+                        </button>
+                        <button 
+                            className={`tab ${activeTab === 'progress' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('progress')}
+                        >
+                            📊 Progress
+                        </button>
+                        <button 
+                            className={`tab ${activeTab === 'history' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('history')}
+                        >
+                            📝 History
+                        </button>
+                        <button 
+                            className={`tab ${activeTab === 'notes' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('notes')}
+                        >
+                            📓 Notes
+                        </button>
+                    </div>
+                    
+                    <div className="content">
+                        {activeTab === 'workout' && (
+                            <>
+                                <div className="week-selector">
+                                    {workoutData.weeks.map((week, idx) => (
+                                        <button
+                                            key={idx}
+                                            className={`week-btn ${selectedWeek === idx ? 'active' : ''}`}
+                                            onClick={() => setSelectedWeek(idx)}
+                                        >
+                                            {week.week}
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                <div className="day-selector">
+                                    {currentWeek?.days.map((day, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`day-card ${selectedDay === idx ? 'active' : ''} ${isDayCompleted(selectedWeek, idx) ? 'completed' : ''}`}
+                                            onClick={() => setSelectedDay(idx)}
+                                        >
+                                            <div>{day.name}</div>
+                                            {isDayCompleted(selectedWeek, idx) && <div>✅</div>}
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                <div className="warm-up-section">
+                                    <div className="warm-up-title">🔥 General Warm-Up</div>
+                                    {warmUpExercises.map((exercise, idx) => (
+                                        <div key={idx} className="warm-up-item">
+                                            <span>{exercise.name}</span>
+                                            <span>{exercise.reps}</span>
+                                            <a href={exercise.link} target="_blank" rel="noopener noreferrer" className="video-link">
+                                                📹 Demo
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                <div className="exercise-list">
+                                    {currentDay?.exercises.map((exercise, exerciseIdx) => {
+                                        const sets = parseInt(exercise.working_sets) || 3;
+                                        const videoLink = workoutData.exercises[exercise.name];
+                                        const isCompleted = isExerciseCompleted(selectedWeek, selectedDay, exerciseIdx, sets);
+                                        const pr = personalRecords[exercise.name];
+                                        
+                                        return (
+                                            <div key={exerciseIdx} className={`exercise-card ${isCompleted ? 'completed' : ''}`}>
+                                                <div className="exercise-header">
+                                                    <div className="exercise-name">
+                                                        {exercise.name}
+                                                        {pr && (
+                                                            <span className="pr-badge">
+                                                                PR: {pr.weight} × {pr.reps}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {videoLink && (
+                                                        <a href={videoLink} target="_blank" rel="noopener noreferrer" className="video-link">
+                                                            📹 Video
+                                                        </a>
+                                                    )}
+                                                </div>
+                                                
+                                                <div className="exercise-info">
+                                                    <div className="info-item">
+                                                        <div className="info-label">Warm-up Sets</div>
+                                                        <div className="info-value">{exercise.warmup_sets}</div>
+                                                    </div>
+                                                    <div className="info-item">
+                                                        <div className="info-label">Working Sets</div>
+                                                        <div className="info-value">{exercise.working_sets}</div>
+                                                    </div>
+                                                    <div className="info-item">
+                                                        <div className="info-label">Rep Range</div>
+                                                        <div className="info-value">{exercise.reps}</div>
+                                                    </div>
+                                                    {exercise.technique !== 'N/A' && (
+                                                        <div className="info-item">
+                                                            <div className="info-label">Technique</div>
+                                                            <div className="info-value">{exercise.technique}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                
+                                                <div className="sets-tracker">
+                                                    {[...Array(sets)].map((_, setIdx) => {
+                                                        const setData = getSetData(selectedWeek, selectedDay, exerciseIdx, setIdx);
+                                                        return (
+                                                            <div key={setIdx} className="set-row">
+                                                                <div className="set-label">Set {setIdx + 1}</div>
+                                                                <div className="input-group">
+                                                                    <input
+                                                                        type="number"
+                                                                        placeholder="Weight"
+                                                                        value={setData.weight}
+                                                                        onChange={(e) => {
+                                                                            const newData = { ...setData, weight: e.target.value };
+                                                                            logSet(selectedWeek, selectedDay, exerciseIdx, setIdx, e.target.value, setData.reps);
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <div className="input-group">
+                                                                    <input
+                                                                        type="number"
+                                                                        placeholder="Reps"
+                                                                        value={setData.reps}
+                                                                        onChange={(e) => {
+                                                                            logSet(selectedWeek, selectedDay, exerciseIdx, setIdx, setData.weight, e.target.value);
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <button
+                                                                    className={`set-complete-btn ${setData.completed ? 'completed' : ''}`}
+                                                                    onClick={() => {
+                                                                        if (setData.weight && setData.reps) {
+                                                                            logSet(selectedWeek, selectedDay, exerciseIdx, setIdx, setData.weight, setData.reps);
+                                                                            startTimer(90); // Start 90 second rest timer
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    {setData.completed ? '✓ Done' : 'Complete'}
+                                                                </button>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        )}
+                        
+                        {activeTab === 'progress' && (
+                            <>
+                                <div className="stats-grid">
+                                    <div className="stat-card">
+                                        <div className="stat-value">{getCompletedWorkouts()}</div>
+                                        <div className="stat-label">Workouts Completed</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-value">{getTotalVolume()}</div>
+                                        <div className="stat-label">Total Volume (lbs)</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-value">{getCurrentStreak()}</div>
+                                        <div className="stat-label">Day Streak</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-value">{Object.keys(personalRecords).length}</div>
+                                        <div className="stat-label">Exercises with PRs</div>
+                                    </div>
+                                </div>
+                                
+                                <div className="analytics-container">
+                                    <div className="chart-container">
+                                        <h3>Exercise Progress</h3>
+                                        <select 
+                                            className="exercise-select"
+                                            value={selectedExercise}
+                                            onChange={(e) => setSelectedExercise(e.target.value)}
+                                        >
+                                            <option value="">Select an exercise</option>
+                                            {getAllExercises().map(exercise => (
+                                                <option key={exercise} value={exercise}>{exercise}</option>
+                                            ))}
+                                        </select>
+                                        
+                                        {selectedExercise && (
+                                            <div className="chart-selector">
+                                                <button 
+                                                    className={`chart-btn ${chartType === 'strength' ? 'active' : ''}`}
+                                                    onClick={() => setChartType('strength')}
+                                                >
+                                                    Strength Progress
+                                                </button>
+                                                <button 
+                                                    className={`chart-btn ${chartType === 'volume' ? 'active' : ''}`}
+                                                    onClick={() => setChartType('volume')}
+                                                >
+                                                    Volume Progress
+                                                </button>
+                                            </div>
+                                        )}
+                                        
+                                        <canvas ref={chartRef} id="progressChart"></canvas>
+                                    </div>
+                                    
+                                    <div className="chart-container">
+                                        <h3>Weekly Volume Trends</h3>
+                                        <div className="volume-chart-container">
+                                            <canvas ref={volumeChartRef} id="volumeChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="pr-list">
+                                    <h3>Personal Records</h3>
+                                    {Object.entries(personalRecords).map(([exercise, pr]) => (
+                                        <div key={exercise} className="pr-item">
+                                            <span>{exercise}</span>
+                                            <span>{pr.weight} lbs × {pr.reps} reps</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                        
+                        {activeTab === 'history' && (
+                            <>
+                                <h3>Workout History</h3>
+                                <button className="export-btn" onClick={exportData}>
+                                    📥 Export Data
+                                </button>
+                                <button className="import-btn" onClick={importData}>
+                                    📤 Import Data
+                                </button>
+                                
+                                <table className="history-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Exercise</th>
+                                            <th>Set</th>
+                                            <th>Weight</th>
+                                            <th>Reps</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {Object.entries(workoutLog)
+                                            .filter(([_, data]) => data.completed)
+                                            .sort(([_, a], [__, b]) => new Date(b.date) - new Date(a.date))
+                                            .slice(0, 20)
+                                            .map(([key, data]) => {
+                                                const [weekIdx, dayIdx, exerciseIdx, setIdx] = key.split('-').map(Number);
+                                                const exercise = workoutData.weeks[weekIdx]?.days[dayIdx]?.exercises[exerciseIdx];
+                                                if (!exercise) return null;
+                                                
+                                                return (
+                                                    <tr key={key}>
+                                                        <td>{new Date(data.date).toLocaleDateString()}</td>
+                                                        <td>{exercise.name}</td>
+                                                        <td>{parseInt(setIdx) + 1}</td>
+                                                        <td>{data.weight} lbs</td>
+                                                        <td>{data.reps}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                    </tbody>
+                                </table>
+                            </>
+                        )}
+                        
+                        {activeTab === 'notes' && (
+                            <div className="notes-section">
+                                <h3>Workout Notes</h3>
+                                <textarea
+                                    className="notes-textarea"
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    placeholder="Track your thoughts, goals, and observations..."
+                                />
+                                <button className="save-notes-btn" onClick={saveNotes}>
+                                    💾 Save Notes
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    
+                    <div className="timer-section">
+                        <div className="timer-display">{formatTime(timerSeconds)}</div>
+                        <div className="timer-controls">
+                            {!isTimerRunning ? (
+                                <button className="timer-btn start" onClick={() => startTimer(timerSeconds)}>
+                                    ▶️ Start
+                                </button>
+                            ) : (
+                                <button className="timer-btn stop" onClick={stopTimer}>
+                                    ⏸️ Pause
+                                </button>
+                            )}
+                            <button className="timer-btn reset" onClick={resetTimer}>
+                                🔄 Reset
+                            </button>
+                        </div>
+                        <div className="quick-timer">
+                            <button className="quick-timer-btn" onClick={() => startTimer(30)}>30s</button>
+                            <button className="quick-timer-btn" onClick={() => startTimer(60)}>60s</button>
+                            <button className="quick-timer-btn" onClick={() => startTimer(90)}>90s</button>
+                            <button className="quick-timer-btn" onClick={() => startTimer(120)}>2m</button>
+                            <button className="quick-timer-btn" onClick={() => startTimer(180)}>3m</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<WorkoutTracker />, document.getElementById('root'));
+    </script>
+</body>
+</html>
