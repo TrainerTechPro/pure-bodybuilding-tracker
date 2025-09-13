@@ -438,49 +438,65 @@
         }
         
         .stat-card {
-            background: #1a1a1a;
-            border: 1px solid #333;
+            background: white;
+            border: 1px solid #e5e5e5;
             padding: 20px;
             border-radius: 16px;
             text-align: center;
+            transition: all 0.2s ease;
+        }
+        
+        .stat-card:active {
+            transform: scale(0.95);
+            border-color: #1a1a1a;
         }
         
         .stat-value {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
-            margin-bottom: 8px;
-            color: #fff;
+            margin-bottom: 6px;
+            color: #1a1a1a;
+            line-height: 1.2;
         }
         
         .stat-label {
-            font-size: 12px;
-            color: #999;
+            font-size: 11px;
+            color: #666;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 600;
         }
         
         .chart-container {
-            background: #1a1a1a;
-            border: 1px solid #333;
+            background: white;
+            border: 1px solid #e5e5e5;
             padding: 20px;
             border-radius: 16px;
             margin-bottom: 20px;
             height: 300px;
             position: relative;
+            transition: all 0.2s ease;
         }
         
         .exercise-select {
             width: 100%;
-            padding: 12px;
-            background: #111;
-            border: 1px solid #333;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 1px solid #e5e5e5;
             border-radius: 12px;
-            color: #fff;
+            color: #1a1a1a;
             font-size: 16px;
+            font-weight: 600;
             margin-bottom: 16px;
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
+        }
+        
+        .exercise-select:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            background: white;
         }
         
         .chart-selector {
@@ -490,47 +506,53 @@
         }
         
         .chart-btn {
-            padding: 8px 16px;
-            background: #111;
-            color: #ccc;
-            border: 1px solid #333;
+            padding: 10px 16px;
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e5e5e5;
             border-radius: 8px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
         
         .chart-btn.active {
-            background: #fff;
-            color: #000;
-            border-color: #fff;
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+        
+        .chart-btn:active {
+            transform: scale(0.95);
         }
         
         .history-table {
             width: 100%;
             border-collapse: collapse;
-            background: #1a1a1a;
+            background: white;
             border-radius: 16px;
             overflow: hidden;
-            border: 1px solid #333;
+            border: 1px solid #e5e5e5;
         }
         
         .history-table th {
-            background: #111;
+            background: #f8f9fa;
             padding: 16px 12px;
             text-align: left;
             font-weight: 700;
             font-size: 12px;
-            color: #ccc;
+            color: #666;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
         .history-table td {
             padding: 12px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #e5e5e5;
             font-size: 14px;
+            color: #1a1a1a;
         }
         
         .history-table tr:last-child td {
@@ -540,25 +562,28 @@
         .notes-textarea {
             width: 100%;
             padding: 16px;
-            background: #1a1a1a;
-            border: 1px solid #333;
+            background: #f8f9fa;
+            border: 1px solid #e5e5e5;
             border-radius: 12px;
-            color: #fff;
+            color: #1a1a1a;
             font-size: 16px;
+            font-weight: 500;
             min-height: 120px;
             resize: vertical;
             font-family: inherit;
+            transition: all 0.2s ease;
         }
         
         .notes-textarea:focus {
             outline: none;
-            border-color: #fff;
+            border-color: #1a1a1a;
+            background: white;
         }
         
         .save-notes-btn, .export-btn, .import-btn {
             padding: 12px 20px;
-            background: #fff;
-            color: #000;
+            background: #1a1a1a;
+            color: white;
             border: none;
             border-radius: 12px;
             font-size: 14px;
@@ -566,16 +591,22 @@
             cursor: pointer;
             margin: 8px 8px 8px 0;
             transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .save-notes-btn:active, .export-btn:active, .import-btn:active {
+            transform: scale(0.95);
         }
         
         .export-btn {
-            background: #3b82f6;
-            color: #fff;
+            background: #007AFF;
+            color: white;
         }
         
         .import-btn {
-            background: #f59e0b;
-            color: #fff;
+            background: #FF9500;
+            color: white;
         }
         
         .pr-notification {
@@ -670,10 +701,10 @@
             }
         }
         
-        /* Dark mode for system */
+        /* Ensure consistent light theme regardless of system preference */
         @media (prefers-color-scheme: dark) {
             body {
-                background: #000;
+                background: #f8f9fa;
             }
         }
         
